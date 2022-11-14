@@ -42,8 +42,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyTodo() {
 
-    var myList by remember { mutableStateOf(listOf("")) }
-    var theTempList: MutableList<String> = myList.toMutableList()
+    var myList by remember { mutableStateOf(listOf<String>()) }
     Scaffold(
         Modifier.fillMaxWidth(),
         topBar = { MyTopBar() }
@@ -55,11 +54,13 @@ fun MyTodo() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             MyRow { item ->
+                var theTempList: MutableList<String> = myList.toMutableList()
                 theTempList.add(item)
                 myList = theTempList
             }
-            MyTodoList({ item ->
-                theTempList.remove(item)
+            MyTodoList({ index ->
+                var theTempList: MutableList<String> = myList.toMutableList()
+                theTempList.removeAt(index)
                 myList = theTempList
             }, myList)
         }
@@ -91,17 +92,22 @@ fun MyRow(
 
 @Composable
 fun MyTodoList(
-    onHeld: (String) -> Unit,
+    onHeld: (Int) -> Unit,
     theList: List<String>
 ) {
     LazyColumn() {
         items(theList.size) { index ->
-            Card(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal =  40.dp, vertical = 10.dp)
-                    .clickable { onHeld(theList[index]) },
-                elevation = 15.dp
+                    .padding(horizontal = 40.dp, vertical = 8.dp)
+                    .border(BorderStroke(1.dp, Color.Black))
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = { onHeld(index) }
+                        )
+                    }
+
             ) {
                 Text(
                     theList[index],
